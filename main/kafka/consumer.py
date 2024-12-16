@@ -41,16 +41,22 @@ def consume_messages():
             # Decode and process the message
             try:
                 data = json.loads(msg.value().decode('utf-8'))
-                filename = f"stock_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                dates = data['dates']
+                closes = data['closes']
 
-                # Save to temporary file
-                with open(filename, 'w') as f:
-                    json.dump(data, f)
+                for date, close in zip(dates, closes):
+                    file_data = {"date": date, "close": close}
+                    filename = f"stock_data_{date}.json"
 
-                # Upload to MinIO
-                minio_client.fput_object(BUCKET_NAME, filename, filename)
-                os.remove(filename)
-                print(f"Saved data to MinIO: {filename}")
+                    # Save to temporary file
+                    with open(filename, 'w') as f:
+                        json.dump(file_data, f)
+
+                    # Upload to MinIO
+                    minio_client.fput_object(BUCKET_NAME, filename, filename)
+                    os.remove(filename)
+                    print(f"Saved data to MinIO: {filename}")
+
             except Exception as e:
                 print(f"Error processing message: {e}")
 

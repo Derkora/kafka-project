@@ -5,12 +5,15 @@ docker-compose up -d
 
 # Membuat topic Kafka
 docker exec -it kafka kafka-topics.sh --create --topic samsung-stock --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+docker exec -it kafka kafka-topics.sh --create --topic stock-input --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 
 # Menjalankan train.py
-python3 preset/train.py
+cd preset && python3 train.py
+cd ..
 
 # Menjalankan producer.py
-python3 preset/producer.py
+cd preset && python3 preset/producer.py
+cd ..
 
 # Menjalankan consumer.py di latar belakang
 python3 preset/consumer.py &
