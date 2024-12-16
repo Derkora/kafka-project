@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        table { width: 100%; margin-bottom: 1em; border-collapse: collapse; }
+        td, th { padding: 0.5em; border: 1px solid #ccc; }
+        input { width: 100%; padding: 0.5em; }
+        button { padding: 0.5em 1em; margin-top: 1em; }
+        #result { margin-top: 1em; font-weight: bold; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Stock Prediction</h1>
+    <form id="data-form">
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Close</th>
+            </tr>
+            <tr><td><input type="date" name="date" required></td><td><input type="number" step="0.01" name="close" required></td></tr>
+            <tr><td><input type="date" name="date" required></td><td><input type="number" step="0.01" name="close" required></td></tr>
+            <tr><td><input type="date" name="date" required></td><td><input type="number" step="0.01" name="close" required></td></tr>
+            <tr><td><input type="date" name="date" required></td><td><input type="number" step="0.01" name="close" required></td></tr>
+            <tr><td><input type="date" name="date" required></td><td><input type="number" step="0.01" name="close" required></td></tr>
+        </table>
+        <button type="submit">Predict</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById("data-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const formData = Array.from(new FormData(e.target));
+            const data = formData.reduce((acc, [key, value], idx) => {
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(value);
+                return acc;
+            }, {});
+
+            try {
+                const response = await fetch("http://localhost:5000/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || "Server Error");
+                }
+
+                const result = await response.json();
+                document.getElementById("result").innerHTML = 
+                    "Predicted Close Prices: <br>" + result.predictions.map((p, i) => `Day ${i + 1}: ${p.toFixed(2)}`).join("<br>");
+            } catch (error) {
+                document.getElementById("result").innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        });
+    </script>
+</body>
+</html>
