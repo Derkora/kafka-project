@@ -12,7 +12,7 @@ cd preset && python3 train.py
 cd ..
 
 # Menjalankan producer.py
-cd preset && python3 preset/producer.py
+cd preset && python3 producer.py
 cd ..
 
 # Menjalankan consumer.py di latar belakang

@@ -40,9 +40,7 @@ else:
 # Process and store the message in MinIO
 def store_in_minio(message):
     try:
-        # Create a unique file name using date and timestamp
-        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        file_name = f"samsung-stock-{message['date']}-{timestamp}.json"
+        file_name = f"samsung-stock-{message['date']}.json"
 
         # Save the message to a JSON file
         with open(file_name, 'w') as f:
