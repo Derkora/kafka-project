@@ -13,7 +13,7 @@ minio_client = Minio(
     secret_key="minio123",
     secure=False
 )
-BUCKET_NAME = "stock-data"
+BUCKET_NAME = "samsung-stock-bucket"
 
 # Pastikan bucket MinIO tersedia
 if not minio_client.bucket_exists(BUCKET_NAME):
@@ -21,7 +21,7 @@ if not minio_client.bucket_exists(BUCKET_NAME):
 
 consumer = Consumer({
     'bootstrap.servers': KAFKA_BROKER,
-    'group.id': 'stock-consumer',
+    'group.id': 'samsung-stock-consumer',
     'auto.offset.reset': 'earliest'
 })
 
@@ -46,7 +46,7 @@ def consume_messages():
 
                 for date, close in zip(dates, closes):
                     file_data = {"date": date, "close": close}
-                    filename = f"stock_data_{date}.json"
+                    filename = f"samsung-stock-{date}.json"
 
                     # Save to temporary file
                     with open(filename, 'w') as f:

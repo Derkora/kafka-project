@@ -97,7 +97,7 @@
         }
 
         // Form submission
-        document.getElementById("data-form").addEventListener("submit", async function(e) {
+        document.getElementById("data-form").addEventListener("submit", async function (e) {
             e.preventDefault();
 
             loading.style.display = "block";
@@ -123,7 +123,17 @@
                 }
 
                 const result = await response.json();
-                displayResult(result.predictions);
+                const predictions = result.predictions;
+
+                // Calculate prediction dates based on the last input date
+                const lastDateInput = new Date(data.date[data.date.length - 1]);
+                const predictionDates = predictions.map((_, i) => {
+                    const newDate = new Date(lastDateInput);
+                    newDate.setDate(newDate.getDate() + 7 + i); // Add 7 days for the first prediction, then increment
+                    return newDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+                });
+
+                displayResult(predictions, predictionDates);
                 loading.style.display = "none";
             } catch (error) {
                 loading.style.display = "none";
@@ -132,32 +142,37 @@
         });
 
         // Display result and chart
-        function displayResult(predictions) {
-            resultContainer.innerHTML = 
-                "Predicted Close Prices: <br>" + predictions.map((p, i) => `Day ${i + 1}: ${p.toFixed(2)}`).join("<br>");
+        function displayResult(predictions, predictionDates) {
+            resultContainer.innerHTML =
+                "Predicted Close Prices: <br>" +
+                predictions
+                    .map((p, i) => `${predictionDates[i]}: ${p.toFixed(2)}`)
+                    .join("<br>");
 
             // Display chart
-            const ctx = document.getElementById('predictionChart').getContext('2d');
+            const ctx = document.getElementById("predictionChart").getContext("2d");
             if (predictionChart) predictionChart.destroy();
 
             predictionChart = new Chart(ctx, {
-                type: 'line',
+                type: "line",
                 data: {
-                    labels: predictions.map((_, i) => `Day ${i + 1}`),
-                    datasets: [{
-                        label: 'Predicted Close Prices',
-                        data: predictions,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderWidth: 2
-                    }]
+                    labels: predictionDates, // Use predictionDates for chart labels
+                    datasets: [
+                        {
+                            label: "Predicted Close Prices",
+                            data: predictions,
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            backgroundColor: "rgba(75, 192, 192, 0.2)",
+                            borderWidth: 2,
+                        },
+                    ],
                 },
                 options: {
                     responsive: true,
                     scales: {
-                        y: { beginAtZero: false }
-                    }
-                }
+                        y: { beginAtZero: false },
+                    },
+                },
             });
         }
     </script>
